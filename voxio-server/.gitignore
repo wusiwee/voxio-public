@@ -1,0 +1,5 @@
+target/
+*.class
+logs/
+tools/logs/
+tools/deploy/out/

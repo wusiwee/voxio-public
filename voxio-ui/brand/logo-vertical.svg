@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320" role="img" aria-label="VOXIO">
+  <!-- 竖版组合：图形在上、文字在下。窄容器、启动页、文档封面用。最小使用宽度 80px。 -->
+  <g fill="#1D1D1F">
+    <g transform="translate(96 44) scale(0.5)">
+      <path d="M20 20 L104 20 L104 104 L20 104 Z"/>
+      <path d="M152 152 L236 152 L236 236 L152 236 Z"/>
+      <path d="M104 64 L192 152 L152 192 L64 104 Z"/>
+    </g>
+    <!-- text-anchor=middle 会把字距的尾部空隙算进宽度，故 x 右移半个字距（12/2）保持视觉居中 -->
+    <text x="166" y="240" text-anchor="middle" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+          font-size="58" font-weight="600" letter-spacing="12">VOXIO</text>
+  </g>
+</svg>

@@ -1,0 +1,292 @@
+# ============================================================================
+# Voxio 在线客服系统 · 公共配置
+#
+# 本文件只放「与部署环境无关」的内容：端口与上下文、连接池容量、网关参数、令牌有效期、
+# MyBatis 与分页配置、加密开关。不使用 env.properties / .env 之类的外部配置文件。
+#
+# 一切随环境不同的东西都在同目录的两份 profile 里，各自完整声明、互不继承：
+#   application-dev.yml    开发环境（本机 MySQL / Redis、本机落盘目录、debug 日志）
+#   application-prod.yml   生产环境（服务器中间件地址、绝对落盘路径、info 日志、关闭监控台）
+# 需要按环境区分的至少有：MySQL 地址与口令、Redis 地址与口令、上传落盘目录、国密密钥目录、
+# JWT 签名密钥、日志级别、Druid 监控台开关。
+#
+# jar 默认激活 dev，clone 下来导入 SQL 后 java -jar 即可起来；
+# 部署到服务器时显式加 --spring.profiles.active=prod。
+# 换现场参数 = 改对应 profile 文件 → 重新打包 jar（mvn package），改完即随 jar 一起投递。
+# ============================================================================
+
+# 项目相关配置
+voxio:
+  # 名称
+  name: Voxio
+  # 版本
+  version: 1.0.0
+  # 版权年份
+  copyrightYear: 2026
+  # 通用文件落盘目录（头像与导入/导出临时文件）：按环境不同，写在 application-dev/prod.yml。
+  # 消息只支持文本，没有聊天附件；/profile/** 的静态放行见 SecurityConfig。
+  # profile: 见当前激活的 profile 文件
+  # 获取ip地址开关
+  addressEnabled: false
+  # 国密统一加密层：SM2 保护会话密钥、SM4-GCM 加密聊天正文与业务字段、SM3-HKDF 派生子密钥、HMAC-SM3 校验帧完整性
+  crypto:
+    # 加密总开关。默认关闭，此时库里是可直读的明文，不需要先生成密钥就能起服务。
+    # 要开启：把下面的 enabled 与 enforce 同时改 true，确认 key-dir 里有属于自己的
+    # master-sm4.json 与 sm2-server.json（首次启动会自动生成），
+    # 再执行 --kf.migrate=legacy-plaintext 把已有明文行补迁成密文。详见 README「可选的国密加密」。
+    enabled: false
+    # 强制加密：true 时忽略 enabled=false（用于「加密常开」的交付口径，防止被改成明文跑业务）
+    enforce: false
+    # 密钥目录按环境不同，写在 application-dev/prod.yml。装载顺序（SmKeyStore.loadOrGenerate）：
+    #   1) 该目录里已有 master-sm4.json / sm2-server.json → 直接用（部署方自带密钥的正规姿势）；
+    #   2) 目录可写但没有密钥 → 首次启动自动生成并落盘；
+    #   3) 目录不可创建/不可写（只读文件系统、容器里没有可写 HOME 等）→
+    #      回退读 classpath 下的 keys/（voxio-admin/src/main/resources/keys/，随仓库与 jar 发布）。
+    # 第 3 条只是兜底，保证首次启动不会因为国密目录不存在而报错；它用的是一对公开的开发密钥，
+    # 要开启加密，必须先确认日志里没有「已回退到 classpath:keys/」这条 WARN。
+    # key-dir: 见当前激活的 profile 文件
+
+# 开发环境配置
+server:
+  # 服务器的HTTP端口（避开本机常见的 8080 占用）
+  port: 10096
+  servlet:
+    # 应用的访问路径：三端与 nginx 统一走 /customer 前缀，控制器路径本身不含该前缀
+    context-path: /customer
+  tomcat:
+    # tomcat的URI编码
+    uri-encoding: UTF-8
+    # 连接数满后的排队数，默认为100
+    accept-count: 1000
+    threads:
+      # 工作线程上限（阶段11 调优：800 → 200）。本部署的 MySQL/Redis 都在公网，
+      # 一条语句网络往返就要 15~20ms，一个请求平均占用数据库连接几十毫秒：
+      # 800 个线程抢 Druid 的几十个连接只会把时间花在排队与上下文切换上。
+      # 200 已经是连接池（maxActive 40）的 5 倍余量，单商户自建场景足够。
+      max: 200
+      # Tomcat启动初始化的线程数（原 100 相对实际并发明显过大）
+      min-spare: 20
+
+# 日志配置
+logging:
+  level:
+    # 业务包 com.voxio 的级别按环境不同，写在 application-dev/prod.yml
+    # （debug 会把每条 MyBatis 语句与参数-结果映射都写盘，日志量与耗时都很可观）。
+    # 临时看 SQL 不必改文件，用启动参数：--logging.level.com.voxio=debug
+    org.springframework: warn
+
+# 用户配置
+user:
+  password:
+    # 密码最大错误次数（与客服端 kf_security_config.login.lock.max-retry 同口径）
+    maxRetryCount: 5
+    # 密码锁定时间（分钟）。登录不走图形验证码，锁定是唯一的爆破闸门，
+    # 因此从若依默认的 10 分钟抬到 30 分钟，与客服端 login.lock.minutes 保持一致
+    lockTime: 30
+
+# Spring配置
+spring:
+  # 应用名（日志与监控里标识本服务）
+  application:
+    name: voxio
+  # 激活的环境配置：默认 dev（落盘与密钥目录取 ${user.home}，任何机器 java -jar 不带参数都能起来）。
+  # 部署到服务器时显式切 prod：java -jar voxio-admin.jar --spring.profiles.active=prod
+  profiles:
+    active: dev
+  # 资源信息
+  messages:
+    # 国际化资源文件路径
+    basename: i18n/messages
+  # 数据源：连接池与过滤器是公共的，「连哪个库、用什么账号」随环境不同，
+  # 由 application-dev.yml / application-prod.yml 各自的 spring.datasource.druid.master 段完整提供。
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    druid:
+      # 从库数据源
+      slave:
+        # 从数据源开关/默认关闭
+        enabled: false
+        url:
+        username:
+        password:
+      # 初始连接数
+      initialSize: 5
+      # 最小连接池数量
+      minIdle: 10
+      # 最大连接池数量（阶段11 调优：20 → 40）。口径：Tomcat 200 线程里真正同时要数据库的只是少数，
+      # 但网关的业务线程（16）与 HTTP 请求共用同一个池，公网数据库一条语句 15~20ms，
+      # 20 个连接在 40 并发消息写入时就开始排队；40 是「够排队不堵死」的量级，不是越大越好
+      # （MySQL 侧 max_connections 默认 151，单实例留出余量）。
+      maxActive: 40
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+      # 配置连接超时时间
+      connectTimeout: 30000
+      # 配置网络超时时间
+      socketTimeout: 60000
+      # 空闲连接保活（阶段11）：数据库在公网，中间设备会掐掉长时间空闲的连接；
+      # 不保活时表现为「服务放一会儿后第一个请求突然变慢甚至报错」
+      keepAlive: true
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      # 配置一个连接在池中最大生存的时间，单位是毫秒
+      maxEvictableIdleTimeMillis: 900000
+      # 配置检测连接是否有效
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      webStatFilter:
+        enabled: true
+      statViewServlet:
+        enabled: true
+        # 设置白名单，不填则允许所有访问
+        allow:
+        url-pattern: /druid/*
+        # 控制台管理用户名和密码
+        login-username: voxio
+        # Druid 监控台口令。开发环境开着便于看 SQL；生产 profile 里把 statViewServlet.enabled 置 false，
+        # 若确实要开放，请换掉这对账号口令并用 allow 限内网。
+        login-password: "wusiwee123"
+      filter:
+        stat:
+          enabled: true
+          # 慢SQL记录
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: true
+        wall:
+          config:
+            multi-statement-allow: true
+  # 文件上传
+  servlet:
+    multipart:
+      # 单个文件大小
+      max-file-size: 10MB
+      # 设置总上传的文件大小
+      max-request-size: 20MB
+  # 服务模块
+  devtools:
+    restart:
+      # 热部署开关
+      enabled: true
+  data:
+    # redis 配置：地址、端口、库索引与口令随环境不同，由当前激活的 profile 提供；
+    # 超时与连接池是公共的。
+    redis:
+      # 连接超时时间
+      timeout: 10s
+      lettuce:
+        pool:
+          # 最小空闲连接：避免每次冷启动都重建连接
+          min-idle: 2
+          # 最大空闲连接
+          max-idle: 16
+          # 最大连接数：网关与结果缓存共用这个池
+          max-active: 16
+          # 最大阻塞等待时间：不设上限会让 Redis 卡住时请求无限排队，3 秒拿不到连接就快速失败
+          max-wait: 3000ms
+
+# token配置
+token:
+  # 令牌自定义标识
+  header: Authorization
+  # 令牌签名密钥 secret 随环境不同，由当前激活的 profile 提供。
+  # 换值会让已签发的 JWT 全部失效（所有人都要重新登录）；对外提供服务前必须换成自己的随机串。
+  # 令牌有效期（默认30分钟）
+  expireTime: 30
+
+# 客服端配置
+kf:
+  agent:
+    token:
+      # 客服令牌有效期（分钟），客服端长时间在线，默认12小时
+      expireTime: 720
+  visitor:
+    token:
+      # 访客令牌有效期（分钟），网页端刷新后凭本地令牌续连
+      expireTime: 1440
+  gateway:
+    # 是否启用 Netty 聊天网关（关闭后业务事件走 kf 侧空实现）
+    enabled: true
+    # 浏览器 WebSocket 接入端口（与 HTTP 10096 同段，便于安全组一起管）
+    ws-port: 10097
+    # 原生客户端 TCP 接入端口（只放行内网/客服网段；跨公网走 nginx 的 /customer-ws）
+    tcp-port: 10098
+    # WebSocket 握手路径
+    ws-path: /ws
+    # 读空闲秒数，超过则断开连接（客户端心跳建议 30s）
+    reader-idle-seconds: 90
+    # 单帧最大字节数
+    max-frame-bytes: 65536
+    # 连接后完成 AUTH 的超时秒数
+    auth-timeout-seconds: 10
+    # 访客每分钟消息上限
+    visitor-rate-per-minute: 20
+    # 客服每分钟消息上限
+    agent-rate-per-minute: 60
+    # SYNC 单次补发上限
+    sync-limit: 200
+    # 单条消息文本长度上限
+    max-content-length: 2000
+    # 业务线程数（消息处理含数据库往返，建议不超过 Druid maxActive=40 的一半）
+    biz-threads: 16
+    # 消息落库异步化：true = 先投递+ACK，再按会话保序写库；
+    # false = 每条消息同步写完才回 ACK（保留给排障对照）
+    persist-async: true
+    # 落库队列容量：满了就退回同步写库（宁可慢，不能丢消息）
+    persist-queue-capacity: 5000
+    # 单条落库任务的失败重试次数与基础间隔（指数退避 200/400/800ms）
+    persist-retry-times: 3
+    persist-retry-delay-ms: 200
+  perf:
+    # 慢接口日志阈值（毫秒）：超过就打一行 WARN，响应头 X-Kf-Elapsed-Ms 始终带上服务端耗时
+    slow-request-ms: 500
+
+# MyBatis配置
+mybatis:
+  # 搜索指定包别名
+  typeAliasesPackage: com.voxio.**.domain
+  # 配置mapper的扫描，找到所有的mapper.xml映射文件
+  mapperLocations: classpath*:mapper/**/*Mapper.xml
+  # 加载全局的配置文件
+  configLocation: classpath:mybatis/mybatis-config.xml
+
+# PageHelper分页插件
+pagehelper:
+  helperDialect: mysql
+  supportMethodsArguments: true
+  params: count=countSql
+
+# Springdoc配置
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    tags-sorter: alpha
+  group-configs:
+    - group: 'default'
+      display-name: '测试模块'
+      paths-to-match: '/**'
+      packages-to-scan: com.voxio.web.controller.tool
+
+# 防盗链配置
+referer:
+  # 防盗链开关
+  enabled: false
+  # 允许的域名列表
+  allowed-domains: localhost,127.0.0.1
+
+# 防止XSS攻击
+xss:
+  # 过滤开关
+  enabled: true
+  # 排除链接（多个用逗号分隔）
+  excludes: /system/notice
+  # 匹配链接
+  urlPatterns: /system/*,/monitor/*,/tool/*

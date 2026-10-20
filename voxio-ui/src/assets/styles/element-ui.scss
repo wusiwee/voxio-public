@@ -1,0 +1,270 @@
+// cover some element-ui styles
+
+.el-breadcrumb__inner,
+.el-breadcrumb__inner a {
+  font-weight: 400 !important;
+}
+
+.el-upload {
+  input[type="file"] {
+    display: none !important;
+  }
+}
+
+.el-upload__input {
+  display: none;
+}
+
+.cell {
+  .el-tag {
+    margin-right: 0px;
+  }
+}
+
+.small-padding {
+  .cell {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+}
+
+.fixed-width {
+  .el-button--mini {
+    padding: 7px 10px;
+    width: 60px;
+  }
+}
+
+.status-col {
+  .cell {
+    padding: 0 10px;
+    text-align: center;
+
+    .el-tag {
+      margin-right: 0px;
+    }
+  }
+}
+
+// to fixed https://github.com/ElemeFE/element/issues/2461
+.el-dialog {
+  transform: none;
+  left: 0;
+  position: relative;
+  margin: 0 auto;
+}
+
+// refine element ui upload
+.upload-container {
+  .el-upload {
+    width: 100%;
+
+    .el-upload-dragger {
+      width: 100%;
+      height: 200px;
+    }
+  }
+}
+
+// dropdown
+.el-dropdown-menu {
+  a {
+    display: block
+  }
+}
+
+// fix date-picker ui bug in filter-item
+.el-range-editor.el-input__inner {
+  display: inline-flex !important;
+}
+
+// to fix el-date-picker css style
+.el-range-separator {
+  box-sizing: content-box;
+}
+
+.el-menu--collapse
+  > div
+  > .el-submenu
+  > .el-submenu__title
+  .el-submenu__icon-arrow {
+  display: none;
+}
+
+.el-dropdown .el-dropdown-link{
+  color: var(--el-color-primary) !important;
+}
+
+/* ------------------------------------------------------------------
+   阶段8 全局主题：圆角 / 边框 / 阴影 / 表格 / 弹窗 / 标签 / 空态
+   颜色一律取自 brand/tokens.json 生成的 --sb-* 变量
+------------------------------------------------------------------- */
+
+/* 卡片容器：白底 + 细边框 + 轻阴影 */
+.el-card {
+  border: 1px solid var(--sb-color-border);
+  border-radius: var(--sb-radius-md);
+  box-shadow: var(--sb-shadow-sm) !important;
+}
+
+.el-card__header {
+  border-bottom: 1px solid var(--sb-color-border);
+  font-weight: 600;
+  color: var(--sb-color-text);
+}
+
+/* 基础控件圆角统一 */
+.el-button,
+.el-input__wrapper,
+.el-textarea__inner,
+.el-select__wrapper,
+.el-tag,
+.el-input-number,
+.el-date-editor.el-input__wrapper {
+  border-radius: var(--sb-radius-sm);
+}
+
+.el-button--large {
+  border-radius: var(--sb-radius-sm);
+}
+
+/* 表格：弱化斑马纹，统一表头与悬浮态 */
+.el-table {
+  --el-table-border-color: var(--sb-color-border);
+  --el-table-header-bg-color: var(--sb-color-bg-table-header);
+  --el-table-row-hover-bg-color: var(--sb-color-bg-hover);
+  --el-table-text-color: var(--sb-color-text);
+  --el-table-header-text-color: var(--sb-color-text-secondary);
+  color: var(--sb-color-text);
+}
+
+.el-table th.el-table__cell {
+  font-weight: 600;
+}
+
+.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+  background-color: var(--sb-color-bg-table-header);
+}
+
+/* 操作列：文字按钮更克制 */
+.el-table .cell .el-button.is-link,
+.el-table .cell .el-button--text {
+  padding: 0 4px;
+  font-weight: 400;
+}
+
+/* 弹窗：圆角、标题左对齐、底部按钮右对齐 */
+.el-dialog {
+  border-radius: var(--sb-radius-lg);
+  border: 1px solid var(--sb-color-border);
+  box-shadow: var(--sb-shadow-lg);
+}
+
+.el-dialog__title {
+  font-size: var(--sb-font-size-lg);
+  font-weight: 600;
+  color: var(--sb-color-text);
+}
+
+.el-dialog__header {
+  border-bottom: 1px solid var(--sb-color-border);
+  margin-right: 0;
+  padding-bottom: 14px;
+}
+
+.el-dialog__footer {
+  text-align: right;
+  border-top: 1px solid var(--sb-color-border);
+  padding-top: 14px;
+}
+
+.dialog-footer,
+.drawer-footer {
+  text-align: right;
+}
+
+/* 抽屉与消息框跟随同一圆角语言 */
+.el-message-box {
+  border-radius: var(--sb-radius-lg);
+}
+
+.el-drawer__header {
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: var(--sb-color-text);
+}
+
+/* 状态标签：统一细边框 + 语义色（与字典 list_class 对应） */
+.el-tag {
+  border: 1px solid transparent;
+  font-weight: 500;
+}
+
+.el-tag--primary {
+  background-color: var(--sb-color-primary-bg);
+  border-color: var(--sb-color-primary-border);
+  color: var(--sb-color-primary);
+}
+
+.el-tag--success {
+  background-color: var(--sb-color-success-bg);
+  border-color: var(--sb-color-success-border);
+  color: var(--sb-color-success);
+}
+
+.el-tag--warning {
+  background-color: var(--sb-color-warning-bg);
+  border-color: var(--sb-color-warning-border);
+  color: var(--sb-color-warning);
+}
+
+.el-tag--danger {
+  background-color: var(--sb-color-danger-bg);
+  border-color: var(--sb-color-danger-border);
+  color: var(--sb-color-danger);
+}
+
+.el-tag--info {
+  background-color: var(--sb-color-bg-hover);
+  border-color: var(--sb-color-border);
+  color: var(--sb-color-text-muted);
+}
+
+/* 空态与加载态 */
+.el-table__empty-block {
+  min-height: 160px;
+}
+
+.el-empty__description p {
+  color: var(--sb-color-text-muted);
+}
+
+.el-skeleton__item {
+  border-radius: var(--sb-radius-sm);
+}
+
+/* 表单：标签、必填星号与错误提示位置统一 */
+.el-form-item__label {
+  color: var(--sb-color-text-secondary);
+  font-weight: 500;
+}
+
+.el-form-item.is-required:not(.is-no-asterisk) > .el-form-item__label:before {
+  color: var(--sb-color-danger);
+  margin-right: 4px;
+}
+
+.el-form-item__error {
+  color: var(--sb-color-danger);
+  padding-top: 2px;
+}
+
+.el-form-item {
+  margin-bottom: 18px;
+}
+
+/* 查询区：与列表卡片视觉分层，字段间距统一 */
+.el-form--inline .el-form-item {
+  margin-right: 12px;
+  margin-bottom: 12px;
+}

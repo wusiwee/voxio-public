@@ -1,0 +1,133 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--sb-color-bg-page);
+  color: var(--sb-color-text);
+  font: var(--sb-font-size-md)/var(--sb-font-line-height) var(--sb-font-family);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 桌面：居中卡片；移动：整屏铺满 */
+.cs-shell {
+  height: 100%;
+  /*
+   * 小屏键盘弹起时 visualViewport.height 会缩水，而 100% 仍然是整个布局视口——
+   * 结果就是输入条被键盘顶到屏幕外。Chat.vue 把可视高度写进 --sb-viewport-height，
+   * 这里消费它：面板跟着键盘一起变矮，输入条永远贴在键盘上方（功能点7）。
+   * 变量缺省时退回 100%，不影响不支持 visualViewport 的浏览器。
+   */
+  height: var(--sb-viewport-height, 100%);
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  padding: 24px;
+}
+
+.cs-panel {
+  width: 100%;
+  max-width: 960px;
+  background: var(--sb-color-bg-card);
+  border: 1px solid var(--sb-color-border);
+  border-radius: var(--sb-radius-lg);
+  box-shadow: var(--sb-shadow-md);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.cs-header {
+  height: 52px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--sb-color-border);
+  background: var(--sb-color-bg-card);
+}
+
+.cs-header__title {
+  font-weight: 600;
+  font-size: var(--sb-font-size-lg);
+  color: var(--sb-color-text);
+}
+
+.cs-header__spacer {
+  flex: 1;
+}
+
+.cs-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.cs-footer {
+  flex: none;
+  border-top: 1px solid var(--sb-color-border);
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  background: var(--sb-color-bg-card);
+}
+
+/* 次要说明文字（阶段12 功能点27）：访客端挂在 cs-muted 上的几乎都是要读的信息
+   ——会话副标题、已读/已送达、正在输入、留言说明，所以整档提到 secondary（白底 5.89:1，过 AA）。
+   真正只做装饰/占位的图标与禁用态继续用 --sb-color-text-muted，不动色板本身。 */
+.cs-muted {
+  color: var(--sb-color-text-secondary);
+}
+
+/* 在线状态点：与管理后台三态色一致 */
+.cs-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--sb-radius-pill);
+  display: inline-block;
+  flex: none;
+  background: var(--sb-color-text-disabled);
+}
+
+.cs-dot--online {
+  background: var(--sb-color-success);
+}
+
+.cs-dot--offline {
+  background: var(--sb-color-text-disabled);
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------
+   阶段9 起访客端打开即对话框：不再有右下角气泡入口与浮窗形态，
+   面板尺寸由 .cs-shell / .cs-panel 决定，移动端整屏铺满
+-------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .cs-shell {
+    padding: 0;
+  }
+
+  .cs-panel {
+    max-width: none;
+    border-radius: 0;
+    box-shadow: none;
+    height: 100%;
+  }
+
+  /* 移动端避免整页横滚，输入区保持可达 */
+  .cs-body {
+    flex-direction: column;
+  }
+}

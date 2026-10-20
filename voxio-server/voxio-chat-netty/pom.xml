@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>voxio</artifactId>
+        <groupId>com.voxio</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>voxio-chat-netty</artifactId>
+
+    <description>
+        chat-netty聊天网关模块（Netty 4.x，WebSocket + TCP 双通道，禁用 Spring WebSocket/STOMP）
+    </description>
+
+    <dependencies>
+
+        <!-- 客服业务模块（落库与查询全部走其 service，网关不写 SQL） -->
+        <dependency>
+            <groupId>com.voxio</groupId>
+            <artifactId>voxio-desk</artifactId>
+        </dependency>
+
+        <!-- Netty 4.x：WebSocket + HTTP 编解码（传递引入 codec/handler/buffer/transport） -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

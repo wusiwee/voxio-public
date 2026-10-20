@@ -1,0 +1,55 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{margin:0;font:13px/1.4 system-ui;color:#1D1D1F;background:#fff}
+h2{font-size:13px;margin:24px 16px 8px;font-weight:600;color:#5A6577}
+.row{display:flex;align-items:flex-end;gap:16px;padding:16px;flex-wrap:wrap}
+.dark{background:#141518}
+.brand{background:#1B3FA0}
+.cell{display:flex;flex-direction:column;align-items:center;gap:6px;color:#5A6577}
+.dark .cell{color:#9aa0a6}
+</style></head><body>
+<h2>主标记缩放（浅底）</h2>
+<div class="row">
+<div class="cell"><img src="../png/mark-512.png" width="256"><span>512</span></div>
+<div class="cell"><img src="../png/mark-128.png" width="128"><span>128</span></div>
+<div class="cell"><img src="../png/mark-64.png"><span>64</span></div>
+<div class="cell"><img src="../png/mark-32.png"><span>32</span></div>
+<div class="cell"><img src="../png/mark-16.png"><span>16</span></div>
+</div>
+<h2>favicon 光学版（真实尺寸）</h2>
+<div class="row">
+<div class="cell"><img src="../png/favicon-16.png"><span>16</span></div>
+<div class="cell"><img src="../png/favicon-32.png"><span>32</span></div>
+<div class="cell"><img src="../png/favicon-48.png"><span>48</span></div>
+</div>
+<h2>反白 / 主色底</h2>
+<div class="row dark">
+<div class="cell"><img src="../png/mark-white-128.png" width="128"><span>dark 128</span></div>
+<div class="cell"><img src="../png/mark-white-64.png"><span>dark 64</span></div>
+<div class="cell"><img src="../png/mark-white-64.png"><span>dark 64</span></div>
+</div>
+<div class="row brand">
+<div class="cell"><img src="../png/horizontal-white.png" width="320"><span>横版反白 320</span></div>
+</div>
+<h2>应用图标</h2>
+<div class="row">
+<div class="cell"><img src="../png/app-icon-512.png" width="128"><span>512</span></div>
+<div class="cell"><img src="../png/app-icon-64.png"><span>64</span></div>
+<div class="cell"><img src="../png/app-icon-32.png"><span>32</span></div>
+<div class="cell"><img src="../png/app-icon-16.png"><span>16</span></div>
+</div>
+<h2>组合标志</h2>
+<div class="row">
+<div class="cell"><img src="../png/horizontal-2x.png" width="480"><span>横版 480</span></div>
+<div class="cell"><img src="../png/vertical.png" width="160"><span>竖版 160</span></div>
+</div>
+<h2>OG 分享图</h2>
+<div class="row"><img src="../png/og-image.png" width="600"></div>
+</body></html>
+<style>img.px{image-rendering:pixelated}</style>
+<h2>16px 放大 8 倍自检（pixelated）</h2>
+<div class="row">
+<div class="cell"><img class="px" src="../png/favicon-16.png" width="128"><span>favicon 16→128</span></div>
+<div class="cell"><img class="px" src="../png/app-icon-16.png" width="128"><span>app-icon 16→128</span></div>
+<div class="cell"><img class="px" src="../png/app-icon-32.png" width="128"><span>app-icon 32→128</span></div>
+<div class="cell"><img class="px" src="../png/mark-16.png" width="128"><span>mark 16→128</span></div>
+</div>

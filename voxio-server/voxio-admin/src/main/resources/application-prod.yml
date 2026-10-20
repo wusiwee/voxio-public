@@ -1,0 +1,53 @@
+# ============================================================================
+# 生产环境配置（需显式激活：java -jar voxio-admin.jar --spring.profiles.active=prod）
+#
+# 与 application-dev.yml 对称，各自完整声明、互不继承。
+# 下面标注了「必须按现场改」的项，其余可按同机部署的默认值直接跑。
+# ============================================================================
+
+voxio:
+  # 头像与导入/导出临时文件的落盘根目录。
+  # 必须与 nginx 的 location /customer/profile/ 的 alias 指向同一目录。
+  # 写成绝对路径而不是 ./uploadPath —— 后者依赖启动时的工作目录，换个目录起服务文件就"消失"了。
+  profile: /opt/voxio/uploadPath
+  crypto:
+    # 国密密钥目录。建议由部署方在这里放自己的 master-sm4.json 与 sm2-server.json 并 chmod 600，
+    # 这样即使开启加密也不会用到仓库里那对公开的开发密钥。
+    # 目录要与数据库同频备份：库备份了、密钥没备份，密文行等于永久丢失。
+    key-dir: /opt/voxio/keys
+
+spring:
+  datasource:
+    druid:
+      # 【必须按现场改】主库地址与账号口令。
+      # 中间件与后端同机部署时保持 127.0.0.1；独立部署时改成内网地址，不要用公网 IP。
+      master:
+        url: jdbc:mysql://127.0.0.1:3306/voxio-public?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8
+        username: root
+        # 生产建议改成现场真实口令；也支持 enc: 密文形态（enc:sm4-gcm$1$…），
+        # 由 CredentialEnvironmentPostProcessor 在数据源创建前用 key-dir 里的主密钥解回明文。
+        password: "wusiwee123"
+      # 【生产与开发的关键差异】Druid SQL 监控台在生产关闭：
+      # 它会暴露 SQL、会话变量与数据源信息。确需开放时改成 true，
+      # 并用 allow 限内网网段、同时换掉 login-username / login-password。
+      statViewServlet:
+        enabled: false
+  data:
+    redis:
+      # 【必须按现场改】Redis 地址与口令。令牌、会话密钥、限流计数与结果缓存都在这里，
+      # 一旦丢令牌等于全员掉线，因此必须设 requirepass 并只放行应用所在网段。
+      host: 127.0.0.1
+      port: 6379
+      database: 0
+      password: "wusiwee123"
+
+# 【必须按现场改】JWT 签名密钥。与开发环境用不同值是硬性要求 ——
+# 只要这个值泄露，就能伪造任意管理员与客服的登录令牌。上线前换成自己的随机串。
+token:
+  secret: "Voxio-Prod-Jwt-Secret-REPLACE-WITH-YOUR-OWN-RANDOM-64plus-chars"
+
+# 日志级别：生产用 info。debug 会把每条 MyBatis 语句与参数-结果映射都写盘，
+# 日志量与耗时都很可观；临时排查用启动参数覆盖，不要改这份文件。
+logging:
+  level:
+    com.voxio: info

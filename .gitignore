@@ -1,0 +1,22 @@
+# ---- 构建产物（都不进版本库）----
+target/
+dist/
+node_modules/
+*.jar.original
+
+# ---- 运行期产生的文件 ----
+logs/
+*.log
+uploadPath/
+
+# ---- IDE 与系统杂物 ----
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- 本地放的真密钥（仓库里只保留 resources/keys/ 那对公开的开发密钥）----
+/keys/
+/voxio-server/keys/

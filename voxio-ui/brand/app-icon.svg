@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="VOXIO">
+  <!--
+    桌面端应用图标：圆角矩形底 + 反白主标记。
+    底色取品牌主色（深墨蓝 #1B3FA0），圆角 112 = 512 的 21.9%，与 Windows 图标的视觉圆润度一致；
+    标记占 62% 且居中，四周留白 ≥ 图形高度的 1/4。
+    仅用于应用图标与安装包；页面内一律用单色版，避免图标到处带底色方块。
+  -->
+  <rect width="512" height="512" rx="112" fill="#1B3FA0"/>
+  <g transform="translate(68 68) scale(1.469)" fill="#FFFFFF">
+    <path d="M20 20 L104 20 L104 104 L20 104 Z"/>
+    <path d="M152 152 L236 152 L236 236 L152 236 Z"/>
+    <path d="M104 64 L192 152 L152 192 L64 104 Z"/>
+  </g>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" width="640" height="160" role="img" aria-label="VOXIO">
+  <!-- 横版反白：深色背景 / 主色底用。几何与字距与 logo-horizontal.svg 一致，仅填充不同。 -->
+  <g fill="#FFFFFF">
+    <g transform="translate(104 32) scale(0.375)">
+      <path d="M20 20 L104 20 L104 104 L20 104 Z"/>
+      <path d="M152 152 L236 152 L236 236 L152 236 Z"/>
+      <path d="M104 64 L192 152 L152 192 L64 104 Z"/>
+    </g>
+    <text x="228" y="107" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+          font-size="76" font-weight="600" letter-spacing="14">VOXIO</text>
+  </g>
+</svg>

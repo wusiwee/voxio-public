@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>voxio</artifactId>
+        <groupId>com.voxio</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>voxio-desk</artifactId>
+
+    <description>
+        kf客服业务模块（客服账号/会话/消息/FAQ/快捷回复/工单/评价/统计）
+    </description>
+
+    <dependencies>
+
+        <!-- Web MVC（客服端拦截器与控制器） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- AOP：业务审计留痕切面 KfAuditAspect 复用控制器上的 @Log 注解（阶段10.5 P0-3） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
+        <!-- 通用工具-->
+        <dependency>
+            <groupId>com.voxio</groupId>
+            <artifactId>voxio-common</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

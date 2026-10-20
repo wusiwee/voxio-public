@@ -1,0 +1,3 @@
+# 配置凭据解密（阶段10.5 P0-1）：application.yml 里的 enc: 值在数据源创建前解回内存
+org.springframework.boot.env.EnvironmentPostProcessor=\
+com.voxio.common.utils.crypto.CredentialEnvironmentPostProcessor

@@ -1,0 +1,97 @@
+// 自动生成，禁止手工修改。来源 voxio-ui/brand/tokens.json，改完执行 node voxio-ui/brand/sync-tokens.mjs
+$sb-version: "1.2.0";
+
+// 颜色
+$sb-color-primary: #1B3FA0 !default;
+$sb-color-primary-hover: #3D5FB0 !default;
+$sb-color-primary-active: #142F7C !default;
+$sb-color-primary-bg: #EDF1FA !default;
+$sb-color-primary-border: #C3D0EA !default;
+$sb-color-primary-on-contrast: #FFFFFF !default;
+$sb-color-success: #22C55E !default;
+$sb-color-success-bg: #EAF7EF !default;
+$sb-color-success-border: #B7E5C8 !default;
+$sb-color-warning: #E6A23C !default;
+$sb-color-warning-bg: #FDF3E6 !default;
+$sb-color-warning-border: #F2DDB5 !default;
+$sb-color-danger: #E5484D !default;
+$sb-color-danger-bg: #FCECEC !default;
+$sb-color-danger-border: #F3C6C8 !default;
+$sb-color-info: #7A869A !default;
+$sb-color-text: #1F2733 !default;
+$sb-color-text-secondary: #5A6577 !default;
+$sb-color-text-muted: #7A869A !default;
+$sb-color-text-disabled: #A8B0BF !default;
+$sb-color-border: #E8ECF4 !default;
+$sb-color-border-strong: #D5DBE6 !default;
+$sb-color-bg-page: #F5F7FB !default;
+$sb-color-bg-card: #FFFFFF !default;
+$sb-color-bg-hover: #F2F5FA !default;
+$sb-color-bg-table-header: #FAFBFD !default;
+$sb-color-bg-mask: rgba(31, 39, 51, 0.45) !default;
+$sb-color-sidebar-bg: #FFFFFF !default;
+$sb-color-sidebar-active-bg: #EDF1FA !default;
+$sb-color-bubble-agent: #1B3FA0 !default;
+$sb-color-bubble-visitor: #FFFFFF !default;
+$sb-color-bubble-system: #F2F5FA !default;
+
+// 圆角
+$sb-radius-sm: 6px !default;
+$sb-radius-md: 10px !default;
+$sb-radius-lg: 14px !default;
+$sb-radius-pill: 999px !default;
+$sb-radius-bubble: 12px !default;
+
+// 阴影
+$sb-shadow-sm: 0 1px 2px rgba(31, 39, 51, 0.06) !default;
+$sb-shadow-md: 0 4px 16px rgba(31, 39, 51, 0.08) !default;
+$sb-shadow-lg: 0 12px 32px rgba(31, 39, 51, 0.12) !default;
+
+// 间距
+$sb-space-1: 4px !default;
+$sb-space-2: 8px !default;
+$sb-space-3: 12px !default;
+$sb-space-4: 16px !default;
+$sb-space-5: 20px !default;
+$sb-space-6: 24px !default;
+$sb-space-7: 32px !default;
+
+// 字体
+$sb-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif !default;
+$sb-font-size-xs: 12px !default;
+$sb-font-size-sm: 13px !default;
+$sb-font-size-md: 14px !default;
+$sb-font-size-lg: 16px !default;
+$sb-font-size-xl: 18px !default;
+$sb-font-size-2xl: 22px !default;
+$sb-font-size-stat: 28px !default;
+$sb-font-line-height: 1.6 !default;
+
+// 组件尺寸
+$sb-control-height: 40px !default;
+$sb-navbar-height: 50px !default;
+$sb-sidebar-width: 200px !default;
+$sb-chat-panel-width: 380px !default;
+$sb-chat-panel-height: 560px !default;
+$sb-bubble-max-width: 78% !default;
+
+// 品牌
+$sb-brand-name: "Voxio" !default;
+$sb-brand-title: "Voxio 在线客服系统" !default;
+$sb-brand-slogan: "让每一次咨询都有回应" !default;
+$sb-brand-mark: #1B3FA0 !default;
+$sb-brand-wordmark: "VOXIO" !default;
+$sb-brand-note: "brand.name 是句中文里的品牌写法（Voxio），wordmark 是标志里的全大写写法（VOXIO）；两者不互换" !default;
+
+// 动效
+$sb-motion-duration-fast: 150ms !default;
+$sb-motion-duration-std: 200ms !default;
+$sb-motion-duration-slow: 250ms !default;
+$sb-motion-ease-standard: cubic-bezier(0.2, 0, 0.2, 1) !default;
+$sb-motion-ease-enter: cubic-bezier(0.16, 1, 0.3, 1) !default;
+$sb-motion-ease-exit: cubic-bezier(0.4, 0, 1, 1) !default;
+$sb-motion-shift: 6px !default;
+$sb-motion-scale-enter: 0.98 !default;
+$sb-motion-skeleton-duration: 1.2s !default;
+$sb-motion-toast-duration: 3200ms !default;
+$sb-motion-attention-duration: 750ms !default;

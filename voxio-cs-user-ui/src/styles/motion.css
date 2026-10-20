@@ -1,0 +1,166 @@
+/*
+ * 阶段12 访客端交互层：动效、焦点与骨架
+ *
+ * 时长/缓动/位移全部取 brand/tokens.json 生成的 --sb-motion-*（与管理后台同源），
+ * 这里只保留访客端用得到的四条：消息进入、提示条出现、骨架波动、焦点可见。
+ * 访客端刻意不引 element-plus 的 skeleton/empty 组件 —— 上一阶段刚把 JS 从 1264KB 压到 383KB，
+ * 为两条骨架线再拉两个组件回来不划算，纯 CSS 反而更快也更可控。
+ */
+
+/* 消息进入：只有实时到达的那一条会动，历史一次性渲染不带这个类（功能点17） */
+.msg-fresh {
+  animation: sb-msg-in var(--sb-motion-duration-slow) var(--sb-motion-ease-enter);
+}
+
+@keyframes sb-msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--sb-motion-shift));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 接入/留言入口出现与隐去时用同一条淡入 + 轻微位移（功能点14） */
+.sb-fade-enter-active,
+.sb-fade-leave-active {
+  transition: opacity var(--sb-motion-duration-std) var(--sb-motion-ease-standard),
+    transform var(--sb-motion-duration-std) var(--sb-motion-ease-standard);
+}
+
+.sb-fade-enter-from,
+.sb-fade-leave-to {
+  opacity: 0;
+  transform: translateY(var(--sb-motion-shift));
+}
+
+.sb-fade-enter-to,
+.sb-fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 断网/重连提示条（功能点8） */
+.chat-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--sb-radius-md);
+  font-size: var(--sb-font-size-sm);
+  animation: sb-bar-in var(--sb-motion-duration-std) var(--sb-motion-ease-enter);
+}
+
+.chat-banner--offline {
+  background: var(--sb-color-warning-bg);
+  border: 1px solid var(--sb-color-warning-border);
+  color: var(--sb-color-warning);
+}
+
+.chat-banner--queued {
+  background: var(--sb-color-primary-bg);
+  border: 1px solid var(--sb-color-primary-border);
+  color: var(--sb-color-primary);
+}
+
+@keyframes sb-bar-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--sb-motion-shift)));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 首屏骨架（功能点3）：行高与真实气泡接近，替换时不跳版 */
+.chat-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 8px 0;
+}
+
+.chat-skeleton__row {
+  display: flex;
+}
+
+.chat-skeleton__row--right {
+  justify-content: flex-end;
+}
+
+.chat-skeleton__bubble {
+  height: 38px;
+  border-radius: var(--sb-radius-bubble);
+  background: linear-gradient(90deg,
+      var(--sb-color-bg-hover) 0%,
+      var(--sb-color-border) 40%,
+      var(--sb-color-bg-hover) 80%);
+  background-size: 300% 100%;
+  animation: sb-skeleton-wave var(--sb-motion-skeleton-duration) var(--sb-motion-ease-standard) infinite;
+}
+
+@keyframes sb-skeleton-wave {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+/* 「加载更早的消息」期间在列表顶部原地显示，不插入额外高度、不推动滚动位置（功能点3） */
+.chat-older {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  font-size: var(--sb-font-size-xs);
+  color: var(--sb-color-text-secondary);
+}
+
+/* 焦点可见：访客端只有三颗按钮可 Tab 到，但焦点环必须清楚（功能点26） */
+button:focus-visible,
+a:focus-visible,
+textarea:focus-visible,
+input:focus-visible,
+.el-button:focus-visible {
+  outline: 2px solid var(--sb-color-primary);
+  outline-offset: 2px;
+}
+
+/* Toast 统一从顶部进入（功能点9） */
+.el-message {
+  animation: sb-bar-in var(--sb-motion-duration-std) var(--sb-motion-ease-enter);
+  border-radius: var(--sb-radius-md);
+  box-shadow: var(--sb-shadow-md);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .msg-fresh,
+  .chat-banner,
+  .chat-skeleton__bubble,
+  .el-message {
+    animation: none !important;
+  }
+
+  .sb-fade-enter-active,
+  .sb-fade-leave-active {
+    transition: none !important;
+  }
+
+  /* 悬浮入口的 hover 位移也是动效；这类元素在 Chat.vue 的 scoped 样式里，
+     但 class 名照样落在 DOM 上，所以这条全局规则能命中，不必把组件样式拆开重写 */
+  .entry-bubble {
+    transition: none !important;
+    transform: none !important;
+  }
+}

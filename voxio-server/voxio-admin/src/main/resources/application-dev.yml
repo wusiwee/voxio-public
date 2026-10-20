@@ -1,0 +1,49 @@
+# ============================================================================
+# 开发环境配置（jar 内默认激活；不带 --spring.profiles.active 时就是这一份）
+#
+# 这里放「与本机开发机绑定」的全部参数：中间件地址与口令、落盘目录、密钥目录、
+# JWT 签名密钥、日志级别、Druid 监控台开关。生产环境见 application-prod.yml，
+# 两份各自完整声明，不互相继承 —— 少写一行就会退回 application.yml 的公共值。
+# ============================================================================
+
+voxio:
+  # 头像与导入/导出临时文件的落盘根目录（消息只支持文本，没有聊天附件）。
+  # 用 ${user.home} 而不是绝对路径：Windows / macOS / Linux 与普通用户都可写，
+  # 不会出现「目录建不出来 → 启动报错」。
+  profile: ${user.home}/voxio/uploadPath
+  crypto:
+    # 国密密钥目录。目录里没有密钥时首次启动自动生成；
+    # 目录不可写时回退读 classpath:keys/ 的开发密钥（仅兜底，别拿它开加密）。
+    key-dir: ${user.home}/voxio/keys
+
+spring:
+  datasource:
+    druid:
+      # 主库：本机 MySQL，库名 voxio-public（不存在时用 mysql 客户端建，见 README「建库」）
+      master:
+        url: jdbc:mysql://127.0.0.1:3306/voxio-public?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8
+        username: root
+        # 支持 enc: 密文形态（写成 enc:sm4-gcm$1$…），由 CredentialEnvironmentPostProcessor
+        # 在数据源创建前解回明文，业务代码不感知。
+        password: "wusiwee123"
+      # Druid SQL 监控台：开发期开着便于看慢 SQL 与会话变量
+      statViewServlet:
+        enabled: true
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
+      # 本机 Redis 若没设 requirepass，要把本行清空 ——
+      # 带口令去连无口令的 Redis 会报 "Client sent AUTH, but no password is set"。
+      password: "wusiwee123"
+
+# JWT 签名密钥。换值会让已签发的令牌全部失效（所有人重新登录）。
+# 仅限开发使用，切勿带到生产 —— 两份 profile 用不同密钥正是为了隔开这一点。
+token:
+  secret: "Voxio-Dev-Jwt-Secret-3f9c1a7b5d2e8k-must-not-reach-production"
+
+# 日志级别：开发看 debug（含 MyBatis 语句与参数-结果映射），生产必须收回到 info
+logging:
+  level:
+    com.voxio: debug

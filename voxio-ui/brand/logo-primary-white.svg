@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="VOXIO">
+  <!-- 主标记反白版：深色背景、主色底、页脚与登录页深色区使用。几何与 logo-primary.svg 完全一致。 -->
+  <path fill="#FFFFFF" d="M20 20 L104 20 L104 104 L20 104 Z"/>
+  <path fill="#FFFFFF" d="M152 152 L236 152 L236 236 L152 236 Z"/>
+  <path fill="#FFFFFF" d="M104 64 L192 152 L152 192 L64 104 Z"/>
+</svg>

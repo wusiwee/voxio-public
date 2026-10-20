@@ -1,0 +1,6 @@
+Application Version: ${voxio.version}
+Spring Boot Version: ${spring-boot.version}
+
+  VOXIO  在线客服系统
+  私有化部署 · 数据不出内网 · 单商户自部署
+

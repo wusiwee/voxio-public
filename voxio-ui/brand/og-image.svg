@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="VOXIO 私有化部署的在线客服系统">
+  <!--
+    社交分享图（og:image）。1200×630 是各平台通用尺寸；
+    深色底 + 反白组合标志 + 一句话定位，定位文案与 voxio-website/src/content/product.js 的 BRAND.positioning 同口径。
+    文字用系统无衬线字体，不嵌字体文件；导出 PNG 由 brand/build-brand.mjs 光栅化。
+  -->
+  <rect width="1200" height="630" fill="#141518"/>
+  <g transform="translate(96 150) scale(1.24)" fill="#FFFFFF">
+    <path d="M20 20 L104 20 L104 104 L20 104 Z"/>
+    <path d="M152 152 L236 152 L236 236 L152 236 Z"/>
+    <path d="M104 64 L192 152 L152 192 L64 104 Z"/>
+  </g>
+  <text x="470" y="248" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+        font-size="96" font-weight="600" letter-spacing="18" fill="#FFFFFF">VOXIO</text>
+  <text x="472" y="322" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+        font-size="34" font-weight="400" letter-spacing="1" fill="#9AA3B5">私有化部署的单商户在线客服系统</text>
+  <rect x="472" y="368" width="64" height="4" rx="2" fill="#1B3FA0"/>
+  <text x="472" y="430" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+        font-size="26" font-weight="400" letter-spacing="0.5" fill="#C7CCD6">数据不出内网 · 网页访客端 + Windows 客服工作台 + 管理后台 · 国密加密</text>
+</svg>

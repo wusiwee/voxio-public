@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" width="640" height="160" role="img" aria-label="VOXIO">
+  <!--
+    横版组合：主标记 + VOXIO。登录页、页头、文档封面、README 顶部用。
+    文字用系统无衬线字体（Inter / Helvetica / 思源黑体族），字重 600，全大写，字距 +14/76 ≈ 0.18em。
+    最小使用宽度 120px；四周留白 ≥ 图形高度的 1/2。
+  -->
+  <g fill="#1D1D1F">
+    <g transform="translate(104 32) scale(0.375)">
+      <path d="M20 20 L104 20 L104 104 L20 104 Z"/>
+      <path d="M152 152 L236 152 L236 236 L152 236 Z"/>
+      <path d="M104 64 L192 152 L152 192 L64 104 Z"/>
+    </g>
+    <text x="228" y="107" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+          font-size="76" font-weight="600" letter-spacing="14">VOXIO</text>
+  </g>
+</svg>

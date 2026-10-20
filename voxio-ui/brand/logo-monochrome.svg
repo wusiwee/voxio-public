@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="VOXIO">
+  <!--
+    纯单色版：fill=currentColor，颜色由容器决定，不依赖任何品牌色值。
+    打印、水印、单色蚀刻，以及需要随主题继承文字色的场景用这一份。
+    它同时是「去掉颜色仍是完整标记」这条约束的自检文件。
+  -->
+  <path fill="currentColor" d="M20 20 L104 20 L104 104 L20 104 Z"/>
+  <path fill="currentColor" d="M152 152 L236 152 L236 236 L152 236 Z"/>
+  <path fill="currentColor" d="M104 64 L192 152 L152 192 L64 104 Z"/>
+</svg>

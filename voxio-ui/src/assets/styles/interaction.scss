@@ -1,0 +1,211 @@
+@use './tokens.scss' as *;
+
+/*
+ * 阶段12 交互层统一原语（管理后台）
+ *
+ * 三条约定：
+ * 1. 时长与缓动只从 brand/tokens.json 生成的 --sb-motion-* 取值，页面里不再出现 .5s / 0.28s 这类硬编码；
+ * 2. 动效只做「淡入 + 轻微位移」，幅度不超过 --sb-motion-shift，不做缩放夸张与弹跳；
+ * 3. 用户系统开了「减少动效」时全部关掉——可用性优先于观感。
+ */
+
+/* 焦点可见：键盘 Tab 到任何可操作元素都要有明确落点（功能点26） */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.el-tree-node__content:focus-visible,
+.el-switch:focus-visible,
+.el-tag:focus-visible {
+  outline: 2px solid var(--sb-color-primary);
+  outline-offset: 2px;
+}
+
+/* 跳到主内容：键盘用户不必先 Tab 过整条侧栏（功能点26） */
+.sb-skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 3000;
+  padding: 8px 14px;
+  border-radius: var(--sb-radius-sm);
+  background: var(--sb-color-bg-card);
+  color: var(--sb-color-primary);
+  font-size: var(--sb-font-size-sm);
+  transform: translateY(-200%);
+  transition: transform var(--sb-motion-duration-fast) var(--sb-motion-ease-enter);
+}
+
+.sb-skip-link:focus {
+  transform: translateY(0);
+}
+
+/* 断网提示条：顶部下推式出现，恢复后自动收起（功能点8） */
+.sb-offline-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--sb-color-warning-bg);
+  border-bottom: 1px solid var(--sb-color-warning-border);
+  color: var(--sb-color-warning);
+  font-size: var(--sb-font-size-sm);
+  animation: sb-bar-in var(--sb-motion-duration-std) var(--sb-motion-ease-enter);
+}
+
+@keyframes sb-bar-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--sb-motion-shift)));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 列表增删改：新增淡入下移、删除淡出、其余行平滑补位（功能点16） */
+.sb-list-enter-active,
+.sb-list-leave-active,
+.sb-list-move {
+  transition: opacity var(--sb-motion-duration-std) var(--sb-motion-ease-standard),
+    transform var(--sb-motion-duration-std) var(--sb-motion-ease-standard);
+}
+
+.sb-list-enter-from {
+  opacity: 0;
+  transform: translateY(var(--sb-motion-shift));
+}
+
+.sb-list-leave-to {
+  opacity: 0;
+}
+
+.sb-list-leave-active {
+  position: absolute;
+  width: 100%;
+}
+
+/* 聊天消息进入：只有实时到达的那一条会动，历史一次性渲染不动（功能点3/17） */
+.sb-msg-enter-active {
+  animation: sb-msg-in var(--sb-motion-duration-slow) var(--sb-motion-ease-enter);
+}
+
+@keyframes sb-msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--sb-motion-shift));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 弹层与抽屉：淡入 + 轻微缩放，关闭更快一档，反向收起（功能点15） */
+.dialog-fade-enter-active {
+  animation: sb-dialog-in var(--sb-motion-duration-std) var(--sb-motion-ease-enter) !important;
+}
+
+.dialog-fade-leave-active {
+  animation: sb-dialog-out var(--sb-motion-duration-fast) var(--sb-motion-ease-exit) !important;
+}
+
+@keyframes sb-dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + var(--sb-motion-shift))) scale(var(--sb-motion-scale-enter));
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes sb-dialog-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + var(--sb-motion-shift))) scale(var(--sb-motion-scale-enter));
+  }
+}
+
+.el-drawer__container .el-drawer,
+.el-drawer.rtl,
+.el-drawer.ltr {
+  transition-duration: var(--sb-motion-duration-slow) !important;
+  transition-timing-function: var(--sb-motion-ease-enter) !important;
+}
+
+/* Toast：三端统一从顶部居中进入（功能点9） */
+.el-message {
+  animation: sb-toast-in var(--sb-motion-duration-std) var(--sb-motion-ease-enter);
+  box-shadow: var(--sb-shadow-md);
+  border-radius: var(--sb-radius-md);
+}
+
+@keyframes sb-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--sb-motion-shift)));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 加载中不遮挡操作：二次刷新只在内容区盖一层半透明，不动整页（功能点1） */
+.el-loading-mask {
+  background-color: rgba(255, 255, 255, .72);
+  transition: opacity var(--sb-motion-duration-fast) linear;
+}
+
+/* 骨架屏之外的「首屏→真实表格」交接也要平滑，避免闪一下（功能点1） */
+.el-table {
+  animation: sb-fade-in var(--sb-motion-duration-std) var(--sb-motion-ease-enter);
+}
+
+@keyframes sb-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* 禁用态要看得出来是「正在提交」而不是「点不动」（功能点4/13） */
+.el-button.is-loading,
+.el-button[disabled] {
+  cursor: not-allowed;
+  opacity: .62;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .sb-list-enter-active,
+  .sb-list-leave-active,
+  .sb-list-move,
+  .sb-msg-enter-active,
+  .el-message,
+  .sb-offline-bar,
+  .el-table,
+  .dialog-fade-enter-active,
+  .dialog-fade-leave-active {
+    animation: none !important;
+    transition: none !important;
+  }
+}

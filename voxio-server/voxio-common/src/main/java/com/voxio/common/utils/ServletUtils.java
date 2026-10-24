@@ -11,6 +11,8 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -24,6 +26,8 @@ import com.voxio.common.core.text.Convert;
  */
 public class ServletUtils
 {
+    private static final Logger log = LoggerFactory.getLogger(ServletUtils.class);
+
     /**
      * 获取String参数
      */
@@ -147,7 +151,9 @@ public class ServletUtils
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            // 走日志框架而不是 printStackTrace：后者写 stderr，生产环境既不进日志文件也没有 traceId，
+            // 排查「接口返回了但客户端没收到」时等于没留痕。
+            log.error("响应渲染失败：{}", e.getMessage(), e);
         }
     }
 

@@ -15,6 +15,12 @@ public class XssValidator implements ConstraintValidator<Xss, String>
 {
     private static final String HTML_PATTERN = "<(\\S*?)[^>]*>.*?|<.*? />";
 
+    /**
+     * 预编译：这个校验器每个带 @Xss 的请求字段都会走一遍，
+     * 原先在 containsHtml 里 compile 等于每次请求都重新解析一遍正则。
+     */
+    private static final Pattern HTML = Pattern.compile(HTML_PATTERN);
+
     @Override
     public boolean isValid(String value, ConstraintValidatorContext constraintValidatorContext)
     {
@@ -28,12 +34,11 @@ public class XssValidator implements ConstraintValidator<Xss, String>
     public static boolean containsHtml(String value)
     {
         StringBuilder sHtml = new StringBuilder();
-        Pattern pattern = Pattern.compile(HTML_PATTERN);
-        Matcher matcher = pattern.matcher(value);
+        Matcher matcher = HTML.matcher(value);
         while (matcher.find())
         {
             sHtml.append(matcher.group());
         }
-        return pattern.matcher(sHtml).matches();
+        return HTML.matcher(sHtml).matches();
     }
 }

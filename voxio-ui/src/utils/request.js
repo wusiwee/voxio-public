@@ -121,8 +121,9 @@ service.interceptors.request.use(config => {
   }
   return config
 }, error => {
-    console.log(error)
-    Promise.reject(error)
+    // 少了 return 时这个 reject 只是被丢弃的 Promise：拦截器返回 undefined，
+    // 请求继续往下走并在别处以更奇怪的方式失败。控制台也不该承接生产错误。
+    return Promise.reject(error)
 })
 
 // 响应拦截器
@@ -169,7 +170,7 @@ service.interceptors.response.use(res => {
     if (axios.isCancel(error)) {
       return Promise.reject(error)
     }
-    console.log('err' + error)
+    // 下面已经把错误翻译成用户能看懂的提示并弹出来了，不需要再往控制台丢一份
     let { message } = error
     if (message == "Network Error") {
       message = "后端接口连接异常"

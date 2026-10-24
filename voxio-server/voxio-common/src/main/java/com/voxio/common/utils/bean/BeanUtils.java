@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Bean 工具类
@@ -13,6 +15,8 @@ import java.util.regex.Pattern;
  */
 public class BeanUtils extends org.springframework.beans.BeanUtils
 {
+    private static final Logger log = LoggerFactory.getLogger(BeanUtils.class);
+
     /** Bean方法名中属性名开始的下标 */
     private static final int BEAN_METHOD_PROP_INDEX = 3;
 
@@ -36,7 +40,10 @@ public class BeanUtils extends org.springframework.beans.BeanUtils
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            // 原先是 printStackTrace：属性名不匹配这种错只在运行时暴露，
+            // 打到 stderr 生产环境看不到，等于复制失败了还当作成功往下走。
+            log.error("Bean 属性复制失败：{} -> {}", src == null ? "null" : src.getClass().getName(),
+                    dest == null ? "null" : dest.getClass().getName(), e);
         }
     }
 

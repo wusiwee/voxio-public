@@ -148,9 +148,10 @@ spring:
         url-pattern: /druid/*
         # 控制台管理用户名和密码
         login-username: voxio
-        # Druid 监控台口令。开发环境开着便于看 SQL；生产 profile 里把 statViewServlet.enabled 置 false，
-        # 若确实要开放，请换掉这对账号口令并用 allow 限内网。
-        login-password: "wusiwee123"
+        # 【换成你自己的口令】公开仓库不放真实口令。开发环境开着监控台便于看 SQL；
+        # 生产 profile 里 statViewServlet.enabled 已是 false，若确实要开放，
+        # 除了换掉这对账号口令，还要用上面的 allow 限内网网段。
+        login-password: "REPLACE-WITH-YOUR-DRUID-PASSWORD"
       filter:
         stat:
           enabled: true

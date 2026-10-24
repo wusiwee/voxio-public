@@ -23,9 +23,10 @@ spring:
       master:
         url: jdbc:mysql://127.0.0.1:3306/voxio-public?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8
         username: root
+        # 【换成你本机 MySQL 的口令】公开仓库不放真实口令。
         # 支持 enc: 密文形态（写成 enc:sm4-gcm$1$…），由 CredentialEnvironmentPostProcessor
         # 在数据源创建前解回明文，业务代码不感知。
-        password: "wusiwee123"
+        password: "REPLACE-WITH-YOUR-MYSQL-PASSWORD"
       # Druid SQL 监控台：开发期开着便于看慢 SQL 与会话变量
       statViewServlet:
         enabled: true
@@ -34,9 +35,10 @@ spring:
       host: 127.0.0.1
       port: 6379
       database: 0
-      # 本机 Redis 若没设 requirepass，要把本行清空 ——
+      # 本机 Redis 若没设 requirepass，保持留空即可 ——
       # 带口令去连无口令的 Redis 会报 "Client sent AUTH, but no password is set"。
-      password: "wusiwee123"
+      # 自己的 Redis 设了口令就填在这里（同样支持 enc: 密文形态）。
+      password: ""
 
 # JWT 签名密钥。换值会让已签发的令牌全部失效（所有人重新登录）。
 # 仅限开发使用，切勿带到生产 —— 两份 profile 用不同密钥正是为了隔开这一点。

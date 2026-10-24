@@ -24,9 +24,9 @@ spring:
       master:
         url: jdbc:mysql://127.0.0.1:3306/voxio-public?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8
         username: root
-        # 生产建议改成现场真实口令；也支持 enc: 密文形态（enc:sm4-gcm$1$…），
+        # 【必须改成现场真实口令】公开仓库不放口令。也支持 enc: 密文形态（enc:sm4-gcm$1$…），
         # 由 CredentialEnvironmentPostProcessor 在数据源创建前用 key-dir 里的主密钥解回明文。
-        password: "wusiwee123"
+        password: "REPLACE-WITH-YOUR-MYSQL-PASSWORD"
       # 【生产与开发的关键差异】Druid SQL 监控台在生产关闭：
       # 它会暴露 SQL、会话变量与数据源信息。确需开放时改成 true，
       # 并用 allow 限内网网段、同时换掉 login-username / login-password。
@@ -39,7 +39,8 @@ spring:
       host: 127.0.0.1
       port: 6379
       database: 0
-      password: "wusiwee123"
+      # 【必须改成现场真实口令】公开仓库不放口令。
+      password: "REPLACE-WITH-YOUR-REDIS-PASSWORD"
 
 # 【必须按现场改】JWT 签名密钥。与开发环境用不同值是硬性要求 ——
 # 只要这个值泄露，就能伪造任意管理员与客服的登录令牌。上线前换成自己的随机串。

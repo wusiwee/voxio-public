@@ -127,7 +127,7 @@ cd voxio-cs-user-ui && npm run dev   # http://localhost:5173
 | 管理员 | `admin` / `admin123` |
 | 客服 | `kefu01` / `kefu02` / `kefu03`，口令 `admin123`（`kefu03` 出厂停用） |
 | 主管角色 | `role_id = 3`，授予客服业务菜单 |
-| MySQL / Redis | `127.0.0.1`，口令 `wusiwee123`，库名 `voxio-public` |
+| MySQL / Redis | 库名 `voxio-public`，地址 `127.0.0.1`；**口令是占位符，克隆后要自己填**（见下一节） |
 
 > 以上都是**开发用的出厂默认值**。对外提供服务前，请务必改掉全部默认口令、替换 `token.secret`，并换成自己的国密密钥。
 
@@ -143,6 +143,17 @@ cd voxio-cs-user-ui && npm run dev   # http://localhost:5173
 
 jar 默认激活 `dev`，部署到服务器时显式切换：`java -jar voxio-admin.jar --spring.profiles.active=prod`。
 改配置 = 改对应 profile 文件 → 重新打包 jar，所以「线上跑的是哪套参数」只看 jar 本身。
+
+**克隆后必须先填的三处口令**（仓库是公开的，里面只留占位符，填完才能连上中间件）：
+
+| 位置 | 键 | 填什么 |
+| --- | --- | --- |
+| `application-dev.yml` / `application-prod.yml` | `spring.datasource.druid.master.password` | 你的 MySQL 口令 |
+| `application-dev.yml` / `application-prod.yml` | `spring.data.redis.password` | 你的 Redis 口令，没设 `requirepass` 就留空 |
+| `application.yml` | `spring.datasource.druid.statViewServlet.login-password` | Druid 监控台口令（prod 里监控台默认关闭） |
+
+`token.secret` 出厂是一句显眼的占位字符串，上线前换成自己的随机串；`application-prod.yml` 里
+标注「必须按现场改」的项同理。口令也支持 `enc:sm4-gcm$1$…` 密文形态，见上面的密钥目录说明。
 
 ## 技术栈
 

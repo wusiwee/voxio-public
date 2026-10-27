@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.ArrayUtils;
@@ -94,6 +95,9 @@ import com.voxio.common.utils.reflect.ReflectUtils;
 public class ExcelUtil<T>
 {
     private static final Logger log = LoggerFactory.getLogger(ExcelUtil.class);
+
+    /** 「12.0」这种被对象转成字符串的整数：导出时每个字符串单元格都要判一次，正则不能每格编一遍 */
+    private static final Pattern TRAILING_ZERO_PATTERN = Pattern.compile("^\\d+\\.0$");
 
     public static final String SEPARATOR = ",";
 
@@ -432,7 +436,7 @@ public class ExcelUtil<T>
                     if (String.class == fieldType)
                     {
                         String s = Convert.toStr(val);
-                        if (s.matches("^\\d+\\.0$"))
+                        if (TRAILING_ZERO_PATTERN.matcher(s).matches())
                         {
                             val = StringUtils.substringBefore(s, ".0");
                         }

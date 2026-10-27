@@ -36,6 +36,10 @@ public class UserAgentUtils
     private static final Pattern LINUX_PATTERN = Pattern.compile("Linux");
     private static final Pattern CHROMEOS_PATTERN = Pattern.compile("CrOS");
 
+    // 版本号归一化用：与上面那批一样预编译，别在每次解析 UA 时现编
+    private static final Pattern VERSION_NON_DIGIT_PATTERN = Pattern.compile("[^0-9.]");
+    private static final Pattern DIGITS_PATTERN = Pattern.compile("\\d+");
+
     private static final UserAgentAnalyzer userAgentAnalyzer = UserAgentAnalyzer
             .newBuilder().hideMatcherLoadStats()
             .withCache(5000)
@@ -201,12 +205,12 @@ public class UserAgentUtils
         try
         {
             // 清理版本号中的非数字字符
-            String cleanVersion = fullVersion.replaceAll("[^0-9.]", "");
+            String cleanVersion = VERSION_NON_DIGIT_PATTERN.matcher(fullVersion).replaceAll("");
             String[] parts = cleanVersion.split("\\.");
             if (parts.length > 0)
             {
                 String firstPart = parts[0];
-                if (firstPart.matches("\\d+"))
+                if (DIGITS_PATTERN.matcher(firstPart).matches())
                 {
                     int version = Integer.parseInt(firstPart);
 

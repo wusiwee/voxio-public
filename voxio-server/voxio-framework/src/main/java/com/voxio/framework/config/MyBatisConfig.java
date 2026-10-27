@@ -9,6 +9,8 @@ import java.util.List;
 import javax.sql.DataSource;
 import org.apache.ibatis.io.VFS;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.autoconfigure.SpringBootVFS;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
@@ -36,6 +38,8 @@ import com.voxio.common.utils.StringUtils;
 @RequiredArgsConstructor
 public class MyBatisConfig
 {
+    private static final Logger log = LoggerFactory.getLogger(MyBatisConfig.class);
+
     private final Environment env;
 
     static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
@@ -67,7 +71,7 @@ public class MyBatisConfig
                             }
                             catch (ClassNotFoundException e)
                             {
-                                e.printStackTrace();
+                                log.warn("扫描别名包时跳过无法加载的类：{}", metadataReader.getClassMetadata().getClassName(), e);
                             }
                         }
                     }
@@ -89,7 +93,7 @@ public class MyBatisConfig
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            log.error("扫描 typeAliasesPackage：{} 失败，按原值继续", typeAliasesPackage, e);
         }
         return typeAliasesPackage;
     }

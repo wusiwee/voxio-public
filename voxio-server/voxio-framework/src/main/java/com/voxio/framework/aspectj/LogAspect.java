@@ -134,9 +134,9 @@ public class LogAspect
         }
         catch (Exception exp)
         {
-            // 记录本地异常日志
-            log.error("异常信息:{}", exp.getMessage());
-            exp.printStackTrace();
+            // 记录本地异常日志：堆栈交给日志框架落文件，printStackTrace 只会打到 stderr，
+            // 服务以 nohup/系统服务方式跑起来时那段栈就彻底丢了
+            log.error("操作日志记录异常：{}", exp.getMessage(), exp);
         }
         finally
         {

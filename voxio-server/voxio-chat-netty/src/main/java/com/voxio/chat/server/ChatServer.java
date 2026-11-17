@@ -1,6 +1,7 @@
 package com.voxio.chat.server;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,11 @@ import lombok.RequiredArgsConstructor;
 public class ChatServer implements SmartLifecycle
 {
     private static final Logger log = LoggerFactory.getLogger("kf.gateway");
+
+    /** 访客消息上限低于这个值就提醒一次：多半是验收/压测改小忘了还原，被误伤的是真实访客 */
+    private static final int LOW_RATE_WARN_BELOW = 10;
+
+    private final AtomicBoolean lowRateWarned = new AtomicBoolean();
 
     private final ChatGatewayProperties properties;
 
@@ -156,6 +162,13 @@ public class ChatServer implements SmartLifecycle
         if (visitorRate <= 0)
         {
             visitorRate = properties.getVisitorRatePerMinute();
+        }
+        // 每条连接建好时读一次参数，所以这个值一旦被改小（压测/验收临时改过忘了还原），线上访客会立刻
+        // 「发两句就提示消息发送过快」。它又不在访客端公开配置里，肉眼查不到，只能在网关侧留一句话。
+        if (visitorRate < LOW_RATE_WARN_BELOW && lowRateWarned.compareAndSet(false, true))
+        {
+            log.warn("[网关限流] 访客消息上限 kf.rate.limit.perMinute={} 已低于正常聊水量级（交付默认 20 条/分钟），"
+                    + "真实访客大概率会被误伤。改回后需刷新参数缓存，且只对新建连接生效（访客要重进会话）", visitorRate);
         }
         return new ChatConnectionHandler(registry, authService, dispatcher, metrics, sessionService, cryptoService,
                 properties.getAuthTimeoutSeconds(), properties.getReaderIdleSeconds(),

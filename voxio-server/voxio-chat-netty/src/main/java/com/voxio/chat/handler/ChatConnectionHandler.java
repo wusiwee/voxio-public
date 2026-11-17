@@ -40,6 +40,19 @@ public class ChatConnectionHandler extends SimpleChannelInboundHandler<ChatEnvel
 
     private static final AttributeKey<SimpleRateLimiter> LIMITER = AttributeKey.valueOf("kf.limiter");
 
+    /** 控制帧（READ/SYNC/TYPING/AGENT_STATUS）的独立配额，与消息配额互不占用 */
+    private static final AttributeKey<SimpleRateLimiter> CONTROL_LIMITER = AttributeKey.valueOf("kf.controlLimiter");
+
+    /**
+     * 控制帧配额 = 消息配额 × 该倍率，且不低于 CONTROL_FLOOR_PER_MINUTE。
+     *
+     * 分开的理由见 limiterFor()：这些帧不是访客「刷屏」，但它们照样要有个上界，
+     * 否则被控客户端可以拿 READ/SYNC 把一条连接的处理器与数据库打满。
+     */
+    private static final int CONTROL_MULTIPLIER = 6;
+
+    private static final int CONTROL_FLOOR_PER_MINUTE = 120;
+
     /** 下发给客户端的建议心跳间隔 */
     private static final int HEARTBEAT_SECONDS = 30;
 
@@ -139,9 +152,10 @@ public class ChatConnectionHandler extends SimpleChannelInboundHandler<ChatEnvel
             // 客户端误发服务端下行命令，忽略即可
             return;
         }
-        if (!acquire(ctx, principal))
+        SimpleRateLimiter limiter = limiterFor(ctx, cmd);
+        if (limiter != null && !limiter.tryAcquire())
         {
-            sendError(ctx, envelope, ChatError.RATE_LIMITED, "消息发送过快，请稍后再试");
+            sendRateLimited(ctx, envelope, limiter, ChatCmd.CHAT.equals(cmd));
             metrics.onRateLimited();
             return;
         }
@@ -173,8 +187,10 @@ public class ChatConnectionHandler extends SimpleChannelInboundHandler<ChatEnvel
 
         io.netty.channel.Channel old = registry.register(principal, ctx.channel());
         ctx.channel().attr(PRINCIPAL).set(principal);
-        ctx.channel().attr(LIMITER).set(new SimpleRateLimiter(
-                principal.isAgent() ? agentRatePerMinute : visitorRatePerMinute));
+        int messageRate = principal.isAgent() ? agentRatePerMinute : visitorRatePerMinute;
+        ctx.channel().attr(LIMITER).set(new SimpleRateLimiter(messageRate));
+        ctx.channel().attr(CONTROL_LIMITER).set(new SimpleRateLimiter(
+                Math.max(messageRate * CONTROL_MULTIPLIER, CONTROL_FLOOR_PER_MINUTE)));
         // 令牌派生连接级 HMAC 密钥：鉴权之后的每一帧都带完整性摘要
         cryptoService.attach(ctx.channel(), token);
         if (old != null && old != ctx.channel())
@@ -252,10 +268,26 @@ public class ChatConnectionHandler extends SimpleChannelInboundHandler<ChatEnvel
         ctx.writeAndFlush(sealOutbound(ctx.channel(), ack));
     }
 
-    private boolean acquire(ChannelHandlerContext ctx, ChatPrincipal principal)
+    /**
+     * 按命令字取配额：只有 CHAT 是「访客说的话」，走每分钟消息上限；
+     * READ / SYNC / TYPING / AGENT_STATUS 是协议自身的动作，走另一条宽得多的配额。
+     *
+     * 之前所有帧共用一份配额，实测代价是访客端在弱网里被自己的协议动作误伤：
+     * 每次重连要补一轮 SYNC、每收一条消息要回一条 READ，正常聊几句就把 20 条/分钟吃光，
+     * 网关于是对「刚打出来的那句话」回 4005，用户看到的就是不停弹「消息发送过快」且再也发不出去。
+     */
+    private SimpleRateLimiter limiterFor(ChannelHandlerContext ctx, String cmd)
     {
-        SimpleRateLimiter limiter = ctx.channel().attr(LIMITER).get();
-        return limiter == null || limiter.tryAcquire();
+        return ctx.channel().attr(ChatCmd.CHAT.equals(cmd) ? LIMITER : CONTROL_LIMITER).get();
+    }
+
+    private void sendRateLimited(ChannelHandlerContext ctx, ChatEnvelope envelope, SimpleRateLimiter limiter,
+            boolean messageFrame)
+    {
+        // 带上窗口还剩多久：客户端照这个时间自动重发，而不是让用户反复手点、每次都再撞一次限流
+        sendError(ctx, envelope, ChatError.RATE_LIMITED,
+                messageFrame ? "消息发送过快，请稍后再试" : "协议指令过于频繁，已忽略本次",
+                messageFrame ? limiter.remainingMillis() : 0L);
     }
 
     @Override
@@ -312,6 +344,11 @@ public class ChatConnectionHandler extends SimpleChannelInboundHandler<ChatEnvel
 
     private void sendError(ChannelHandlerContext ctx, ChatEnvelope envelope, int code, String msg)
     {
+        sendError(ctx, envelope, code, msg, 0L);
+    }
+
+    private void sendError(ChannelHandlerContext ctx, ChatEnvelope envelope, int code, String msg, long retryAfterMs)
+    {
         ChatEnvelope error = new ChatEnvelope();
         error.setCmd(ChatCmd.ERROR);
         error.setSeq(envelope == null ? null : envelope.getSeq());
@@ -323,6 +360,11 @@ public class ChatConnectionHandler extends SimpleChannelInboundHandler<ChatEnvel
         error.setTs(System.currentTimeMillis());
         error.getBody().put("code", code);
         error.getBody().put("msg", msg);
+        if (retryAfterMs > 0)
+        {
+            // 限流窗口还剩多久，客户端照这个值自动补发，不让用户反复手点
+            error.getBody().put("retryAfterMs", retryAfterMs);
+        }
         ctx.writeAndFlush(sealOutbound(ctx.channel(), error));
     }
 

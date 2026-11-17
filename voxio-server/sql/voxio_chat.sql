@@ -1063,7 +1063,7 @@ insert into kf_config (config_id, config_key, config_value, config_name, config_
 (2, 'kf.queue.tip', '当前客服都在接待中，您排在第 {position} 位，请稍候。', '排队提示语', '0', 'admin', sysdate(), '{position} 会被替换为实时排队位置（第 1 位表示前面无人等待）'),
 (3, 'kf.agent.offline.tip', '当前客服不在线，您可以留言或提交工单，我们会尽快联系您。', '无客服在线提示语', '0', 'admin', sysdate(), '全部客服离线时下发'),
 (4, 'kf.session.timeout.minutes', '30', '会话无活动自动结束（分钟）', '0', 'admin', sysdate(), '超过该分钟数无消息即由系统自动结束（end_by=3），0 表示不自动结束'),
-(8, 'kf.rate.limit.perMinute', '20', '访客每分钟消息上限', '0', 'admin', sysdate(), '网关连接鉴权时读取；无值时回退 kf.gateway.visitor-rate-per-minute'),
+(8, 'kf.rate.limit.perMinute', '20', '访客每分钟消息上限（仅计 CHAT 聊天帧，已读/补发/正在输入等控制帧另走一条配额）', '0', 'admin', sysdate(), '网关连接鉴权时读取；无值时回退 kf.gateway.visitor-rate-per-minute'),
 (9, 'kf.openapi.secret', 'voxio-open-please-change-me', '访客端签名密钥（预留，未启用）', '0', 'admin', sysdate(), '访客侧已改用访客令牌鉴权，当前版本不做时间戳签名；本参数不下发到 /kf/open/config'),
 (10, 'kf.assign.strategy', 'least_load', '会话分配策略（固定空闲优先）', '0', 'admin', sysdate(), '当前版本固定按 current_load 最小优先，未实现轮询等多策略切换');
 
@@ -1454,7 +1454,7 @@ update kf_config set remark = '关闭后新会话只进排队，由主管在「�
        update_by = 'admin', update_time = sysdate()
  where config_key = 'kf.assign.enabled';
 
-update kf_config set remark = '访客每分钟消息上限，网关在连接鉴权时读取本参数；库内无值时回退 kf.gateway.visitor-rate-per-minute',
+update kf_config set remark = '访客每分钟消息上限：只统计 CHAT 聊天帧，READ/SYNC/TYPING/AGENT_STATUS 这些协议控制帧走网关另一条独立配额（消息上限×6，不低于 120/分钟），不吃这里的额度。网关在连接鉴权时读取本参数，所以改完只对新建连接生效（访客要重进会话）；值低于 10 时网关日志会打一条告警。库内无值时回退 kf.gateway.visitor-rate-per-minute',
        update_by = 'admin', update_time = sysdate()
  where config_key = 'kf.rate.limit.perMinute';
 

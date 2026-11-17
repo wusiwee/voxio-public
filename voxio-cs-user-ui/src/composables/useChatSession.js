@@ -295,8 +295,17 @@ export function useChatSession(options = {}) {
     if (code === 4004) {
       sessionStatus.value = '2'
     }
-    // 被拒绝的消息标为失败，可点击重发；这类是「内容/频率」问题，不必再等 ACK
-    if (code === 4006 || code === 4005) {
+    // 限流不是「这句话有问题」，只是「这一分钟说得太多了」。
+    // 以前它和「内容超长」一样被标成发送失败 + 一条红字弹窗：用户看到的就是弹窗不停、
+    // 一句句话全躺在失败里，手动重发一次再撞一次，最后彻底发不出去。
+    // 现在按网关给的窗口剩余时间自动补发一次（同一 clientMsgId，服务端幂等，不会重复入库），
+    // 只提示一次；再被拒才把「点击重发」交回用户。
+    if (code === 4005) {
+      handleRateLimited(frame, text)
+      return
+    }
+    // 被拒绝的消息标为失败，可点击重发；这类是「内容」问题，不必再等 ACK
+    if (code === 4006) {
       const idx = findIndex(frame.mid)
       if (idx >= 0) messages.value[idx].status = 'failed'
       const record = pendingByClientId.get(frame.mid)
@@ -306,6 +315,35 @@ export function useChatSession(options = {}) {
       }
     }
     ElMessage.error(text)
+  }
+
+  function handleRateLimited(frame, text) {
+    const record = pendingByClientId.get(frame.mid)
+    if (!record) {
+      // READ/SYNC 这类控制帧被限流不对应任何一句话，弹窗只会让访客以为自己的话没发出去
+      return
+    }
+    if (record.rateLimited) {
+      // 已经自动等过一轮还是被拒：这时才真的算发送失败，给用户重发入口
+      record.rateLimited = false
+      record.message.status = 'failed'
+      clearTimeout(record.timer)
+      pendingByClientId.delete(frame.mid)
+      ElMessage.error(text)
+      return
+    }
+    const waitMs = Math.min(Math.max(Number(frame.body && frame.body.retryAfterMs) || 3000, 1000), 65000)
+    record.rateLimited = true
+    clearTimeout(record.timer)
+    record.timer = setTimeout(() => {
+      // 期间已经 ACK 掉或被重发接管就不要再补一次
+      if (!pendingByClientId.has(frame.mid)) return
+      record.rateLimited = false
+      if (rawSend(record.chatFrame())) {
+        watchAck(frame.mid)
+      }
+    }, waitMs)
+    ElMessage.warning(`发送有点快，已自动等 ${Math.ceil(waitMs / 1000)} 秒后重发`)
   }
 
   let readTimer = null

@@ -324,13 +324,30 @@ async function onSend(payload) {
 }
 
 let typingTimer = null
+let typingOn = false
+let typingSentAt = 0
+/**
+ * 「正在输入」不能逐字符发帧：曾经每次按键一帧，一进人工接待就把这条连接的配额吃掉一大半，
+ * 访客的感受是「打字打几下就开始提示发送过快」。口径与桌面端一致：
+ * 状态翻转时发一帧，之后最长每 2 秒续一次，停手 3 秒撤下。
+ */
 function onTyping(typing) {
   if (!canSend.value) return
-  chat.sendTyping(!!typing)
   clearTimeout(typingTimer)
-  if (typing) {
-    typingTimer = setTimeout(() => chat.sendTyping(false), 3000)
+  if (!typing) {
+    if (typingOn) {
+      chat.sendTyping(false)
+      typingOn = false
+    }
+    return
   }
+  const now = Date.now()
+  if (!typingOn || now - typingSentAt >= 2000) {
+    chat.sendTyping(true)
+    typingOn = true
+    typingSentAt = now
+  }
+  typingTimer = setTimeout(() => onTyping(false), 3000)
 }
 
 /** 读取排队与在线状态；访客端只信这份实时数据，不在前端写死文案 */
